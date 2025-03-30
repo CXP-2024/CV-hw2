@@ -1,7 +1,9 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.ndimage import gaussian_filter
+from homography_manual import find_homography_manual, compute_transformed_coordinates, warp_perspective_manual
+from gaussian import gaussian_filter
+
 
 
 def create_gaussian_pyramid(image, num_octaves, scales_per_octave, sigma0=1.6):
@@ -39,13 +41,15 @@ def create_gaussian_pyramid(image, num_octaves, scales_per_octave, sigma0=1.6):
         # Create scales for this octave
         for scale in range(scales_per_octave + 3):
             sigma = sigma0 * (k ** scale)
-            blurred = gaussian_filter(octave_base, sigma)
+            kernel_size = int(2 * np.ceil(2 * sigma) + 1)
+            blurred = gaussian_filter(octave_base, kernel_size, sigma=sigma)
             octave_images.append(blurred)
             
         gaussian_pyramid.append(octave_images)
         
-    '''
+    
     # show the gaussian pyramid, one plot for each octave, total plot number is num_octaves
+    '''
     for i in range(num_octaves):
         plt.figure(figsize=(100, 15))
         for j in range(scales_per_octave + 3):
@@ -55,9 +59,10 @@ def create_gaussian_pyramid(image, num_octaves, scales_per_octave, sigma0=1.6):
         print("Octave: ", i, " Scale: ", scales_per_octave + 3, " Shape: ", gaussian_pyramid[i][j].shape)
         sigma_box = [sigma0 * (k ** scale) for scale in range(scales_per_octave + 2)]
         print("Sigma: ", sigma_box)
+        #print("Gaussian kernel: size", kernel_size, "\n", generate_gaussian_kernel(kernel_size, sigma=sigma_box[0] * 5))
         plt.tight_layout()
         plt.show()
-'''
+    '''
 
     return gaussian_pyramid
 
@@ -102,7 +107,7 @@ def create_dog_pyramid(gaussian_pyramid):
         plt.figure(figsize=(100, 15))
         for j in range(len(dog_pyramid[i])):
             plt.subplot(1, len(dog_pyramid[i]), j + 1)
-            plt.imshow(dog_pyramid[i][j].astype(np.uint8), cmap='gray')
+            plt.imshow(dog_pyramid[i][j], cmap='gray')
 						# plt.axis('off')
         print("Octave: ", i, " Scale: ", len(dog_pyramid[i]), " Shape: ", dog_pyramid[i][j].shape)
         plt.tight_layout()
@@ -111,7 +116,7 @@ def create_dog_pyramid(gaussian_pyramid):
 
     return dog_pyramid
 
-def detect_keypoints2(dog_pyramid, contrast_threshold=0.6, edge_threshold=10):
+def detect_keypoints2(dog_pyramid, contrast_threshold=0.5, edge_threshold=10):
     """
     Detect keypoints in the DoG pyramid with sub-pixel refinement.
     
@@ -203,12 +208,19 @@ def detect_keypoints2(dog_pyramid, contrast_threshold=0.6, edge_threshold=10):
         print("find keypoints in octave: ", octave_idx, " keypoints number: ", octave_num)
         total_keypoints_num = total_keypoints_num + octave_num
     print("total keypoints number: ", total_keypoints_num)
-    
+                
     if len(keypoints) < 100:
         print("Warning: Very few keypoints detected, less than 100")
-        print("redo the keypoints detection...")
-        keypoints = detect_keypoints2(dog_pyramid, contrast_threshold=0.82* contrast_threshold, edge_threshold=10)
-
+        print("redo the keypoints detection...", " last contrast_threshold: ", contrast_threshold)
+        keypoints = detect_keypoints2(dog_pyramid, contrast_threshold=0.8* contrast_threshold, 
+                                      edge_threshold=10)
+        
+    if len(keypoints) > 3500 and contrast_threshold < 0.9:
+        print("Warning: Too many keypoints detected, more than 3500")
+        print("redo the keypoints detection...", "last contrast_threshold: ", contrast_threshold)
+        keypoints = detect_keypoints2(dog_pyramid, contrast_threshold=1.05 * contrast_threshold, edge_threshold=10)
+        
+    last_detected_number = len(keypoints)
     return keypoints
 
 def compute_orientations2(gaussian_pyramid, keypoints, num_bins=36, sigma0=1.4):
@@ -435,7 +447,7 @@ def ransac_match(keypoints1, keypoints2, matches, num_iterations=1000, inlier_th
         
         try:
             # Compute homography using the 4 points
-            homography, _ = cv2.findHomography(src_sample, dst_sample, 0)
+            homography = find_homography_manual(src_sample, dst_sample)
             
             # Skip if homography couldn't be computed
             if homography is None:
@@ -468,7 +480,11 @@ def ransac_match(keypoints1, keypoints2, matches, num_iterations=1000, inlier_th
         except Exception as e:
             # Skip this iteration if there's an error
             continue
-    
+    # if we have enough inliers, we can compute the homography again
+    if len(best_inliers) >= 4:
+        src_pts = np.float32([keypoints1[match[0]][:2] for match in best_inliers])
+        dst_pts = np.float32([keypoints2[match[1]][:2] for match in best_inliers])
+        best_homography = find_homography_manual(src_pts, dst_pts)
     return best_inliers, best_homography
         
 def visualize_keypoints(image, keypoints):

@@ -31,8 +31,8 @@ class Stitch(SIFT):
         img3 = img_lst[2]
         img4 = img_lst[3]
         # compute matches
-        keypoints1, keypoints2, matches = self.detect_and_match_features_(img1, img2, num_octaves=4, scales_per_octave=4, contrast_threshold=0.6, edge_threshold=10, ratio_threshold=0.75)
-        keypoints4, keypoints3,  matches2 = self.detect_and_match_features_(img4, img3, num_octaves=4, scales_per_octave=4, contrast_threshold=0.6, edge_threshold=10, ratio_threshold=0.75)
+        keypoints1, keypoints2, matches = self.detect_and_match_features_(img1, img2, num_octaves=4, scales_per_octave=4, contrast_threshold=0.7, edge_threshold=10, ratio_threshold=0.7)
+        keypoints4, keypoints3,  matches2 = self.detect_and_match_features_(img4, img3, num_octaves=4, scales_per_octave=4, contrast_threshold=0.7, edge_threshold=10, ratio_threshold=0.7)
         
 				# compute homography and combine 1 and 2, 3 and 4
         ransac_matches, homography = self.compare_ransac_matching_(img1, img2, keypoints1,  keypoints2, matches)
@@ -43,7 +43,7 @@ class Stitch(SIFT):
 				# Stitch the images: blend + blend2
         img1_gray = blended
         img2_gray = blended2
-        keypoints1, keypoints2, matches = self.detect_and_match_features_(img1_gray, img2_gray, num_octaves=4, scales_per_octave=4, contrast_threshold=0.40, edge_threshold=10, ratio_threshold=0.75)
+        keypoints1, keypoints2, matches = self.detect_and_match_features_(img1_gray, img2_gray, num_octaves=4, scales_per_octave=4, contrast_threshold=0.65, edge_threshold=10, ratio_threshold=0.75)
         ransac_matches, homography = self.compare_ransac_matching_(img1_gray, img2_gray, keypoints1, keypoints2, matches)
         warped_img1, img2_canvas, blended, overlap_mask = self.warp_image_(img1_gray, img2_gray, homography)
         # =========================================================================================================

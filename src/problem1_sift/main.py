@@ -89,7 +89,7 @@ if __name__ == '__main__':
     img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2RGB)
     img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2RGB)
 		# =========================================================================================================
-    sift_.match(img1, img2, contrast_threshold1=0.6, contrast_threshold2=0.4, ratio_threshold=0.7, edge_threshold=10, num_octaves=4, scales_per_octave=4)
+    sift_.match(img1, img2, contrast_threshold1=0.75, contrast_threshold2=0.6, ratio_threshold=0.7, edge_threshold=10, num_octaves=4, scales_per_octave=4)
 
 
     ################    Test the school gate image    ################

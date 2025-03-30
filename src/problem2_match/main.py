@@ -27,7 +27,7 @@ class R_SIFT(SIFT):
         # TODO: Please fill this part with your code
         # But DO NOT change this interface
         keypoints1, descriptors1 = self.out(img1, contrast_threshold=0.05)
-        keypoints2, descriptors2 = self.out(img2, contrast_threshold=0.5)
+        keypoints2, descriptors2 = self.out(img2, contrast_threshold=0.6)
         matches = self.match_descriptors_(descriptors1, descriptors2, ratio_threshold=0.8)
         print('matches:', len(matches))
         self.visualize_matches_(img1, keypoints1, img2, keypoints2, matches)
