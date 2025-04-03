@@ -8,10 +8,10 @@ from homography_manual import find_homography_manual, compute_transformed_coordi
 # =========================================================================================================
 
 src_points = np.array([
-    [656, 271],  # 左上
-    [987, 332],  # 右上
-    [848, 344],  # 右下
-    [538, 279]   # 左下
+    [655, 268],  # 左上
+    [995, 332],  # 右上
+    [848, 342],  # 右下
+    [535, 278]   # 左下
 ], dtype=np.float32)
 
 # src_points = np.array([
@@ -54,22 +54,21 @@ def calculate_distance(img):
     cv2.imwrite("transformed_result.png", img_transformed)
 
 		# find where the [808, 300] point is located in the transformed image
-    gate_point = np.array([[811, 299]], dtype=np.float32)
-    ball_point = np.array([[255, 362]], dtype=np.float32)
-    referee_point = np.array([[17, 380]], dtype=np.float32)
-    left_foot_point = np.array([[786, 295]], dtype=np.float32)
-    gate_post_point = np.array([[876, 311]], dtype=np.float32)
-    gate_point_transformed = compute_transformed_coordinates(H, gate_point)
+    #gate_point = np.array([[811, 299]], dtype=np.float32)
+    ball_point = np.array([[250, 360]], dtype=np.float32)
+    referee_point = np.array([[20, 375]], dtype=np.float32)
+    left_foot_point = np.array([[785, 295]], dtype=np.float32)
+    gate_post_point = np.array([[875, 310]], dtype=np.float32)
+    #gate_point_transformed = compute_transformed_coordinates(H, gate_point)
     ball_point_transformed = compute_transformed_coordinates(H, ball_point)
     referee_point_transformed = compute_transformed_coordinates(H, referee_point)
     left_foot_transformed = compute_transformed_coordinates(H, left_foot_point)
     gate_post_transformed = compute_transformed_coordinates(H, gate_post_point)
-    print(gate_point, 'gate point->', gate_point_transformed)
+    #print(gate_point, 'gate point->', gate_point_transformed)
     print(ball_point, 'ball point->', ball_point_transformed)
     print(referee_point, 'referee point->', referee_point_transformed)
 
-    distance_1 = np.sqrt((gate_point_transformed[0][0] - ball_point_transformed[0][0]) ** 2 + 
-                     (gate_point_transformed[0][1] - ball_point_transformed[0][1]) ** 2)
+    distance_1 = ball_point_transformed[0][1] - gate_post_transformed[0][1]
     distance_2 = np.sqrt((left_foot_transformed[0][0] - gate_post_transformed[0][0]) ** 2 + 
                      (left_foot_transformed[0][1] - gate_post_transformed[0][1]) ** 2)
     distance_3 = np.sqrt((ball_point_transformed[0][0] - referee_point_transformed[0][0]) ** 2 + 

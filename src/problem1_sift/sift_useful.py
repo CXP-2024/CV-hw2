@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from homography_manual import find_homography_manual, compute_transformed_coordinates, warp_perspective_manual
-from gaussian import gaussian_filter
+from gaussian import gaussian_filter     #### use my gaussian_filter function
 
 def create_gaussian_pyramid(image, num_octaves, scales_per_octave, sigma0=1.6):
     """

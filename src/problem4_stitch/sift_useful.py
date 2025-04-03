@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.ndimage import gaussian_filter
 from homography_manual import find_homography_manual, compute_transformed_coordinates, warp_perspective_manual
 from gaussian import gaussian_filter
 
@@ -41,7 +40,7 @@ def create_gaussian_pyramid(image, num_octaves, scales_per_octave, sigma0=1.6):
         for scale in range(scales_per_octave + 3):
             sigma = sigma0 * (k ** scale)
             kernel_size = int(2 * np.ceil(2 * sigma) + 1)
-            blurred = gaussian_filter(octave_base, kernel_size, sigma=sigma)
+            blurred = gaussian_filter(octave_base, kernel_size, sigma=sigma)   ## use my own gaussian filter
             octave_images.append(blurred)
             
         gaussian_pyramid.append(octave_images)

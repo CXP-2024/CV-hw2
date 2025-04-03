@@ -31,7 +31,7 @@ class Stitch(SIFT):
         img3 = img_lst[2]
         img4 = img_lst[3]
         # compute matches
-        keypoints1, keypoints2, matches = self.detect_and_match_features_(img1, img2, num_octaves=4, scales_per_octave=4, contrast_threshold=0.7, edge_threshold=10, ratio_threshold=0.7)
+        keypoints1, keypoints2, matches = self.detect_and_match_features_(img1, img2, num_octaves=4, scales_per_octave=4, contrast_threshold=0.735, edge_threshold=10, ratio_threshold=0.7)
         keypoints4, keypoints3,  matches2 = self.detect_and_match_features_(img4, img3, num_octaves=4, scales_per_octave=4, contrast_threshold=0.7, edge_threshold=10, ratio_threshold=0.7)
         
 				# compute homography and combine 1 and 2, 3 and 4
